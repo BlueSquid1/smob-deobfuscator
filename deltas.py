@@ -1,6 +1,5 @@
 import argparse
 import os
-import re
 
 outputDir = "./diff"
 counter = 0

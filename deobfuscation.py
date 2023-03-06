@@ -1,5 +1,3 @@
-#2297
-
 import argparse
 import os
 import re
@@ -51,8 +49,6 @@ def deobfuscateText(text):
     i = 0
     while i < linesLength:
         line = lines[i]
-        if 'const-string v0, "NetworkMeteredCtrlr"' in line:
-            x = 0
         result = re.match(localExpression, line)
         if bool(result):
             localVariables = int(result.group(1))
@@ -63,12 +59,13 @@ def deobfuscateText(text):
                 endPos = -1
                 for j in range(i+1, len(lines)):
                     skipLine = lines[j]
-                    if re.match(localExpression, skipLine):
+                    if re.match("\.end method", skipLine):
                         # Stop skipping forward
                         endPos = j
                         break
 
-                    if re.search('\s+' + suspectVar, skipLine):
+                    # to prevent the variable name appear in a function call
+                    if re.search(suspectVar + "}|" + suspectVar + ",| " + suspectVar, skipLine):
                         setCommands = ['const\/\d+', 
                                        'const-string', 
                                        'or-int\/2addr',
@@ -148,7 +145,9 @@ def deobfuscateFile(inputFile, outputFile):
     text = ""
     with open(inputFile, 'r') as f:
         text = f.read()
-        
+
+    if "ba40.smali" in inputFile:
+        x = 0
     restoredText = deobfuscateText(text)
 
     with open(outputFile, 'w') as f:
